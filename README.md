@@ -144,7 +144,7 @@ http://127.0.0.1:5000/
 
 ## 👨‍💻 Author
 
-**Muhammed Darwish**
+**Abhinav mtk**
 🔗 https://github.com/optimuxprime8089856470
 
 ---
