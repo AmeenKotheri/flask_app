@@ -1,5 +1,6 @@
 from flask import Flask, redirect, request, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy
+
 from flask_login import (
     LoginManager, UserMixin, login_user,
     logout_user, login_required, current_user
@@ -11,7 +12,7 @@ import re
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-# 🔥 NEW: load .env
+#  NEW: load .env
 from dotenv import load_dotenv
 import os
 
@@ -19,19 +20,19 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# 🔥 limiter
+#  limiter
 limiter = Limiter(
     get_remote_address,
     app=app,
     default_limits=["200 per day", "50 per hour"]
 )
 
-# 🔥 CONFIG
+#  CONFIG
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
 
-# 🔥 MAIL CONFIG (FIXED)
+#  MAIL CONFIG (FIXED)
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
@@ -49,7 +50,7 @@ login_manager.login_view = "index"
 mail = Mail(app)
 serializer = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
-# 🔥 DATABASE MODEL
+#  DATABASE MODEL
 class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
@@ -57,16 +58,16 @@ class Users(UserMixin, db.Model):
     password = db.Column(db.String(500), nullable=False)
     is_verified = db.Column(db.Boolean, default=False)
 
-# 🔥 CREATE DB
+#  CREATE DB
 with app.app_context():
     db.create_all()
 
-# 🔥 LOGIN MANAGER
+#  LOGIN MANAGER
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(int(user_id))
 
-# 🔥 ROUTES
+#  ROUTES
 @app.route("/")
 def home():
     if current_user.is_authenticated:
@@ -95,7 +96,7 @@ def index():
 
     return render_template("index.html")
 
-# 🔥 HELPERS
+#  HELPERS
 def is_strong_password(password):
     return (
         len(password) >= 8 and
@@ -108,7 +109,7 @@ def is_strong_password(password):
 def username_sec_check(username):
     return re.fullmatch(r"[A-Za-z0-9_]+", username)
 
-# 🔥 REGISTER
+#  REGISTER
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
@@ -171,7 +172,7 @@ def register():
 
     return render_template("register.html")
 
-# 🔥 VERIFY
+#  VERIFY
 @app.route("/verify/<token>")
 def verify_email(token):
     try:
@@ -189,20 +190,20 @@ def verify_email(token):
 
     return redirect(url_for("index"))
 
-# 🔥 DASHBOARD
+#  DASHBOARD
 @app.route("/dashboard")
 @login_required
 def dashboard():
     return render_template("dashboard.html", username=current_user.username)
 
-# 🔥 LOGOUT
+#  LOGOUT
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for("home"))
 
-# 🔥 NO CACHE
+#  NO CACHE
 @app.after_request
 def add_no_cache_headers(response):
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
@@ -210,6 +211,6 @@ def add_no_cache_headers(response):
     response.headers["Expires"] = "0"
     return response
 
-# 🔥 RUN
+#  RUN
 if __name__ == "__main__":
     app.run(debug=True)
