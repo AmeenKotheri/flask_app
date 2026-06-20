@@ -138,9 +138,12 @@ def register():
                     recipients=[email],
                     body=f"Click to verify:\n{verify_url}"
                 )
-                mail.send(msg)
-
-                return "Verification email resent."
+                try:
+                    mail.send(msg)
+                    return "Verification email sent!"
+                except Exception as e:
+                    print(e)
+                    return f"Mail Error: {str(e)}"
 
             return render_template("register.html", error="Email already registered!")
 
@@ -166,9 +169,12 @@ def register():
             recipients=[email],
             body=f"Click to verify:\n{verify_url}"
         )
-        mail.send(msg)
-
-        return "Verification email sent!"
+        try:
+            mail.send(msg)
+            return "Verification email sent!"
+        except Exception as e:
+            print(e)
+            return f"Mail Error: {str(e)}"
 
     return render_template("register.html")
 
