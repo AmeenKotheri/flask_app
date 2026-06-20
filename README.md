@@ -42,14 +42,8 @@ This project focuses on doing the basics **correctly**, not just making them wor
 
 ## ⚙️ Setup
 
-### 1. Clone the repository
 
-```bash id="cln01"
-git clone https://github.com/optimuxprime8089856470/flask-auth-system.git
-cd flask-auth-system
-```
-
-### 2. Create virtual environment
+### 1. Create virtual environment
 
 ```bash id="venv01"
 python -m venv venv
@@ -71,7 +65,7 @@ source venv/bin/activate
 
 ---
 
-### 3. Install dependencies
+### 2. Install dependencies
 
 ```bash id="dep01"
 pip install -r requirements.txt
@@ -79,7 +73,7 @@ pip install -r requirements.txt
 
 ---
 
-### 4. Configure environment variables
+### 3. Configure environment variables
 
 Create a `.env` file:
 
@@ -93,7 +87,7 @@ MAIL_PASSWORD=your_app_password
 
 ---
 
-### 5. Run the application
+### 4. Run the application
 
 ```bash id="run01"
 python app.py
@@ -144,7 +138,7 @@ http://127.0.0.1:5000/
 
 ## 👨‍💻 Author
 
-**Abhinav mtk**
+**Ameen Kotheri**
 🔗 https://github.com/optimuxprime8089856470
 
 ---
