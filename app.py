@@ -6,7 +6,7 @@ from flask_login import (
     logout_user, login_required, current_user
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-import resend
+from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 import re
 from flask_limiter import Limiter
@@ -32,8 +32,14 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
 
-# RESEND CONFIG
-resend.api_key = os.getenv("RESEND_API_KEY")
+# MAIL CONFIG (Gmail setup for Railway)
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USE_SSL"] = False
+app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_USERNAME")
 
 db = SQLAlchemy(app)
 
@@ -41,6 +47,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "index"
 
+mail = Mail(app)
 serializer = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
 # DATABASE MODEL
@@ -126,14 +133,13 @@ def register():
                 token = serializer.dumps(email, salt="email-verify")
                 verify_url = url_for("verify_email", token=token, _external=True)
 
+                msg = Message(
+                    subject="Verify your email",
+                    recipients=[email],
+                    body=f"Click to verify:\n{verify_url}"
+                )
                 try:
-                    params = {
-                        "from": "Acme <onboarding@resend.dev>",
-                        "to": [email],
-                        "subject": "Verify your email",
-                        "html": f"<strong>Click to verify:</strong><br><a href='{verify_url}'>{verify_url}</a>"
-                    }
-                    resend.Emails.send(params)
+                    mail.send(msg)
                     return "Verification email sent!"
                 except Exception as e:
                     print(e)
@@ -158,14 +164,13 @@ def register():
         token = serializer.dumps(email, salt="email-verify")
         verify_url = url_for("verify_email", token=token, _external=True)
 
+        msg = Message(
+            subject="Verify your email",
+            recipients=[email],
+            body=f"Click to verify:\n{verify_url}"
+        )
         try:
-            params = {
-                "from": "Acme <onboarding@resend.dev>",
-                "to": [email],
-                "subject": "Verify your email",
-                "html": f"<strong>Click to verify:</strong><br><a href='{verify_url}'>{verify_url}</a>"
-            }
-            resend.Emails.send(params)
+            mail.send(msg)
             return "Verification email sent!"
         except Exception as e:
             print(e)
