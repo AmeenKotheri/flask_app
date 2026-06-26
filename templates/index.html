@@ -118,6 +118,7 @@
             text-decoration: underline;
         }
     </style>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -142,7 +143,20 @@
                 <label>Password</label>
             </div>
 
+            <div style="text-align:right; margin-bottom:15;">
+                <a href="{{ url_for('forgot_password') }}"
+                   style="color: #6c63ff; font-size: 13px;">
+                Forgot Password?
+              </a>
+            </div>
+
+            <div class="g-recaptcha"
+                data-sitekey="{{ RECAPTCHA_SITE_KEY }}"
+                style="margin-bottom: 15px;">
+            </div>
+
             <button type="submit">Login</button>
+            
         </form>
 
         <p class="switch">

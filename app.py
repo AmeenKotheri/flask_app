@@ -68,7 +68,7 @@ def home():
     return render_template("home.html")
 
 @app.route("/login", methods=["GET", "POST"])
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def index():
     if current_user.is_authenticated:
         return redirect(url_for("dashboard"))
