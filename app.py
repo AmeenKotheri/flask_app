@@ -39,6 +39,9 @@ app.config["MAIL_USE_SSL"] = False
 app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_USERNAME")
+app.config["MAIL_MAX_EMAILS"] = 5
+app.config["MAIL_ASCII_ATTACHMENTS"] = False
+app.config["MAIL_TIMEOUT"] = 10
 
 
 db = SQLAlchemy(app)
