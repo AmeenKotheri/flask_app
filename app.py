@@ -7,6 +7,8 @@ from flask_login import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
+
+import traceback
 from itsdangerous import URLSafeTimedSerializer
 import re
 from flask_limiter import Limiter
@@ -278,6 +280,26 @@ def verify_email(token):
     db.session.commit()
 
     return redirect(url_for("index"))
+@app.route("/test-mail")
+def test_mail():
+    try:
+        msg = Message(
+            subject="SMTP Test",
+            recipients=["ameenkotheri@gmail.com"],
+            body="This is a test email from Render."
+        )
+
+        print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
+        print("MAIL_PASSWORD exists:", bool(app.config["MAIL_PASSWORD"]))
+
+        mail.send(msg)
+
+        return "Email sent successfully!"
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return f"Error: {e}"
 
 # DASHBOARD
 @app.route("/dashboard")
