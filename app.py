@@ -173,6 +173,89 @@ def register():
 
     return render_template("register.html")
 
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form.get("email")
+
+        user = Users.query.filter_by(email=email).first()
+
+        if not user:
+            return render_template(
+                "forgot_password.html",
+                error="No account found with this email."
+            )
+
+        token = serializer.dumps(email, salt="reset-password")
+
+        reset_url = url_for(
+            "reset_password",
+            token=token,
+            _external=True
+        )
+
+        try:
+            params = {
+                "from": "Acme <onboarding@resend.dev>",
+                "to": [email],
+                "subject": "Reset your password",
+                "html": f"""
+                <h3>Password Reset</h3>
+
+                <p>Click the link below to reset your password.</p>
+
+                <a href="{reset_url}">
+                    Reset Password
+                </a>
+                """
+            }
+
+            resend.Emails.send(params)
+
+            return "Password reset email sent successfully."
+
+        except Exception as e:
+            return str(e)
+
+    return render_template("forgot_password.html")
+
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+
+    try:
+        email = serializer.loads(
+            token,
+            salt="reset-password",
+            max_age=3600
+        )
+
+    except Exception:
+        return "Invalid or expired reset link."
+
+    user = Users.query.filter_by(email=email).first()
+
+    if request.method == "POST":
+
+        password = request.form.get("password")
+
+        if not is_strong_password(password):
+            return render_template(
+                "reset_password.html",
+                token=token,
+                error="Weak password."
+            )
+
+        user.password = generate_password_hash(password)
+
+        db.session.commit()
+
+        return redirect(url_for("index"))
+
+    return render_template(
+        "reset_password.html",
+        token=token
+    )
+
 # VERIFY
 @app.route("/verify/<token>")
 def verify_email(token):
@@ -211,6 +294,7 @@ def add_no_cache_headers(response):
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
+
 
 # RUN
 if __name__ == "__main__":
