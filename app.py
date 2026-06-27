@@ -280,26 +280,29 @@ def verify_email(token):
     db.session.commit()
 
     return redirect(url_for("index"))
+import socket
+
 @app.route("/test-mail")
 def test_mail():
+
+    print("MAIL_USERNAME =", app.config["MAIL_USERNAME"])
+    print("MAIL_PASSWORD EXISTS =", bool(app.config["MAIL_PASSWORD"]))
+
     try:
-        msg = Message(
-            subject="SMTP Test",
-            recipients=["ameenkotheri@gmail.com"],
-            body="This is a test email from Render."
-        )
+        print("Trying to connect to Gmail...")
 
-        print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
-        print("MAIL_PASSWORD exists:", bool(app.config["MAIL_PASSWORD"]))
+        sock = socket.create_connection(("smtp.gmail.com",587),10)
 
-        mail.send(msg)
+        print("CONNECTED!")
 
-        return "Email sent successfully!"
+        sock.close()
+
+        return "SMTP Connection Success"
 
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return f"Error: {e}"
+        return str(e)
 
 # DASHBOARD
 @app.route("/dashboard")
